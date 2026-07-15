@@ -1,0 +1,24 @@
+# Entorno y variables sensibles
+.env
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE y editores
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Docker
+.docker/
+mysql_data/
+
+# Archivos temporales de Word
+~$*
+~WRL*.tmp

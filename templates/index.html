@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetCare Services - Gestión Veterinaria y Reservas</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Estilos -->
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+    <header>
+        <h1><i class="fa-solid fa-paw"></i> PetCare Services</h1>
+        <nav>
+            <button class="tab-btn active" onclick="switchTab('tab-reservas')"><i class="fa-solid fa-calendar-days"></i> Reservas</button>
+            <button class="tab-btn" onclick="switchTab('tab-mascotas')"><i class="fa-solid fa-dog"></i> Mascotas</button>
+            <button class="tab-btn" onclick="switchTab('tab-propietarios')"><i class="fa-solid fa-users"></i> Propietarios</button>
+        </nav>
+    </header>
+
+    <div class="container">
+
+        <!-- TAB 1: RESERVAS -->
+        <div id="tab-reservas" class="tab-content active">
+            <div class="grid-2">
+                <!-- Listado y Filtros -->
+                <div>
+                    <div class="glass-panel">
+                        <h2>Listado de Reservas</h2>
+                        
+                        <!-- Panel de Filtros -->
+                        <div class="filters-container">
+                            <div class="form-group">
+                                <label for="filter-mascota">Mascota</label>
+                                <select id="filter-mascota" class="form-control" onchange="loadBookings()">
+                                    <option value="">Todas</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filter-propietario">Propietario</label>
+                                <select id="filter-propietario" class="form-control" onchange="loadBookings()">
+                                    <option value="">Todos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filter-servicio">Servicio</label>
+                                <select id="filter-servicio" class="form-control" onchange="loadBookings()">
+                                    <option value="">Todos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filter-fecha">Fecha</label>
+                                <input type="date" id="filter-fecha" class="form-control" onchange="loadBookings()">
+                            </div>
+                            <div class="form-group">
+                                <label for="filter-estado">Estado</label>
+                                <select id="filter-estado" class="form-control" onchange="loadBookings()">
+                                    <option value="">Todos</option>
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Confirmada">Confirmada</option>
+                                    <option value="Cancelada">Cancelada</option>
+                                    <option value="Completada">Completada</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="bookings-list">
+                            <!-- Las reservas se cargarán aquí dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario Nueva Reserva -->
+                <div>
+                    <div class="glass-panel">
+                        <h2>Registrar Nueva Reserva</h2>
+                        <form id="form-reserva" onsubmit="saveBooking(event)">
+                            <div class="form-group">
+                                <label for="booking-mascota">Mascota *</label>
+                                <select id="booking-mascota" class="form-control" required>
+                                    <option value="">Seleccione una mascota</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="booking-servicio">Tipo de Servicio *</label>
+                                <select id="booking-servicio" class="form-control" required>
+                                    <option value="">Seleccione un servicio</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="booking-fecha">Fecha de Atención *</label>
+                                    <input type="date" id="booking-fecha" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="booking-hora">Hora de Atención *</label>
+                                    <input type="time" id="booking-hora" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="booking-observaciones">Observaciones</label>
+                                <textarea id="booking-observaciones" class="form-control" rows="3" placeholder="Detalles o requerimientos especiales..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="booking-estado">Estado de la Reserva</label>
+                                <select id="booking-estado" class="form-control">
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Confirmada">Confirmada</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn"><i class="fa-solid fa-check"></i> Confirmar Reserva</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: MASCOTAS -->
+        <div id="tab-mascotas" class="tab-content">
+            <div class="grid-2">
+                <!-- Listado de Mascotas -->
+                <div>
+                    <div class="glass-panel">
+                        <h2>Mascotas Registradas</h2>
+                        <div id="pets-list">
+                            <!-- Las mascotas se cargarán aquí dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario Registro Mascota -->
+                <div>
+                    <div class="glass-panel">
+                        <h2>Registrar Nueva Mascota</h2>
+                        <form id="form-mascota" onsubmit="savePet(event)">
+                            <div class="form-group">
+                                <label for="pet-nombre">Nombre de la Mascota *</label>
+                                <input type="text" id="pet-nombre" class="form-control" placeholder="Ej. Toby" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="pet-especie">Especie *</label>
+                                    <select id="pet-especie" class="form-control" onchange="updateBreedsDropdown()" required>
+                                        <option value="">Seleccione especie</option>
+                                        <option value="Perro">Perro</option>
+                                        <option value="Gato">Gato</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="pet-raza">Raza *</label>
+                                    <select id="pet-raza" class="form-control" required disabled>
+                                        <option value="">Seleccione especie primero</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="pet-nacimiento">Fecha de Nacimiento *</label>
+                                    <input type="date" id="pet-nacimiento" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="pet-sexo">Sexo *</label>
+                                    <select id="pet-sexo" class="form-control" required>
+                                        <option value="Macho">Macho</option>
+                                        <option value="Hembra">Hembra</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="pet-peso">Peso (Kg) *</label>
+                                    <input type="number" step="0.01" id="pet-peso" class="form-control" placeholder="Ej. 12.5" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="pet-propietario">Propietario *</label>
+                                    <select id="pet-propietario" class="form-control" required>
+                                        <option value="">Seleccione propietario</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="pet-foto">URL de la Fotografía</label>
+                                <input type="url" id="pet-foto" class="form-control" placeholder="https://ejemplo.com/toby.jpg">
+                            </div>
+                            <button type="submit" class="btn"><i class="fa-solid fa-floppy-disk"></i> Registrar Mascota</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: PROPIETARIOS -->
+        <div id="tab-propietarios" class="tab-content">
+            <div class="grid-2">
+                <!-- Listado de Propietarios -->
+                <div>
+                    <div class="glass-panel">
+                        <h2>Propietarios Registrados</h2>
+                        <div id="owners-list">
+                            <!-- Los propietarios se cargarán aquí dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario Registro Propietario -->
+                <div>
+                    <div class="glass-panel">
+                        <h2>Registrar Nuevo Propietario</h2>
+                        <form id="form-propietario" onsubmit="saveOwner(event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="owner-nombres">Nombres *</label>
+                                    <input type="text" id="owner-nombres" class="form-control" placeholder="Ej. Juan" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="owner-apellidos">Apellidos *</label>
+                                    <input type="text" id="owner-apellidos" class="form-control" placeholder="Ej. Pérez" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="owner-documento">Documento de Identidad (DNI/Pasaporte) *</label>
+                                <input type="text" id="owner-documento" class="form-control" placeholder="Ej. 72345678" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="owner-correo">Correo Electrónico *</label>
+                                <input type="email" id="owner-correo" class="form-control" placeholder="juan.perez@ejemplo.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="owner-telefono">Número de Teléfono *</label>
+                                <input type="tel" id="owner-telefono" class="form-control" placeholder="Ej. 987654321" required>
+                            </div>
+                            <button type="submit" class="btn"><i class="fa-solid fa-user-plus"></i> Registrar Propietario</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script de lógica -->
+    <script>
+        // Navegación entre pestañas
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            // Recargar datos actualizados de la BD según pestaña
+            if (tabId === 'tab-reservas') {
+                loadBookings();
+            } else if (tabId === 'tab-mascotas') {
+                loadPets();
+            } else if (tabId === 'tab-propietarios') {
+                loadOwners();
+            }
+        }
+
+        // Carga inicial
+        window.addEventListener('DOMContentLoaded', () => {
+            // Establecer fecha mínima como hoy para el formulario de reserva
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('booking-fecha').value = today;
+            document.getElementById('booking-fecha').min = today;
+
+            // Cargar todos los catálogos y listas
+            loadOwners();
+            loadPets();
+            loadServices();
+            loadBookings();
+        });
+
+        // 1. Cargar Propietarios
+        async function loadOwners() {
+            try {
+                const res = await fetch('/api/owners');
+                const owners = await res.json();
+                
+                // Actualizar lista
+                const list = document.getElementById('owners-list');
+                if (owners.length === 0) {
+                    list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-users fa-2x"></i><p>No hay propietarios registrados.</p></div>`;
+                } else {
+                    list.innerHTML = owners.map(o => `
+                        <div class="pet-card">
+                            <div class="card-info">
+                                <h3>${o.apellidos}, ${o.nombres}</h3>
+                                <p><i class="fa-solid fa-id-card"></i> Doc: ${o.documento_identidad}</p>
+                                <p><i class="fa-solid fa-envelope"></i> ${o.correo}</p>
+                                <p><i class="fa-solid fa-phone"></i> ${o.telefono}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // Actualizar dropdowns
+                const pSelect = document.getElementById('pet-propietario');
+                const pFilter = document.getElementById('filter-propietario');
+                
+                const options = `<option value="">Seleccione propietario</option>` + owners.map(o => `
+                    <option value="${o.id}">${o.apellidos}, ${o.nombres} (${o.documento_identidad})</option>
+                `).join('');
+                pSelect.innerHTML = options;
+
+                pFilter.innerHTML = `<option value="">Todos</option>` + owners.map(o => `
+                    <option value="${o.id}">${o.apellidos}, ${o.nombres}</option>
+                `).join('');
+
+            } catch (err) {
+                console.error("Error al cargar propietarios", err);
+            }
+        }
+
+        // 2. Guardar Propietario
+        async function saveOwner(e) {
+            e.preventDefault();
+            const data = {
+                nombres: document.getElementById('owner-nombres').value,
+                apellidos: document.getElementById('owner-apellidos').value,
+                documento_identidad: document.getElementById('owner-documento').value,
+                correo: document.getElementById('owner-correo').value,
+                telefono: document.getElementById('owner-telefono').value
+            };
+
+            try {
+                const res = await fetch('/api/owners', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    alert('Propietario registrado exitosamente.');
+                    document.getElementById('form-propietario').reset();
+                    loadOwners();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (err) {
+                alert('Error de conexión.');
+            }
+        }
+
+        // 3. Cargar razas basadas en especie elegida
+        async function updateBreedsDropdown() {
+            const especie = document.getElementById('pet-especie').value;
+            const breedSelect = document.getElementById('pet-raza');
+
+            if (!especie) {
+                breedSelect.innerHTML = `<option value="">Seleccione especie primero</option>`;
+                breedSelect.disabled = true;
+                return;
+            }
+
+            breedSelect.disabled = false;
+            breedSelect.innerHTML = `<option value="">Cargando razas...</option>`;
+
+            try {
+                const res = await fetch(`/api/breeds?especie=${especie}`);
+                const breeds = await res.json();
+                
+                breedSelect.innerHTML = breeds.map(b => `
+                    <option value="${b.id}">${b.nombre}</option>
+                `).join('');
+            } catch (err) {
+                breedSelect.innerHTML = `<option value="">Error al cargar razas</option>`;
+            }
+        }
+
+        // 4. Cargar Mascotas
+        async function loadPets() {
+            try {
+                const res = await fetch('/api/pets');
+                const pets = await res.json();
+
+                const list = document.getElementById('pets-list');
+                if (pets.length === 0) {
+                    list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-dog fa-2x"></i><p>No hay mascotas registradas.</p></div>`;
+                } else {
+                    list.innerHTML = pets.map(m => `
+                        <div class="pet-card">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <img src="${m.foto_url || '/static/placeholder.jpg'}" onerror="this.src='https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100&h=100&fit=crop'" class="pet-photo-thumbnail" alt="Foto">
+                                <div class="card-info">
+                                    <h3>${m.nombre}</h3>
+                                    <p><strong>Especie:</strong> ${m.especie} | <strong>Raza:</strong> ${m.raza_nombre}</p>
+                                    <p><strong>Sexo:</strong> ${m.sexo} | <strong>Peso:</strong> ${m.peso} Kg</p>
+                                    <p><strong>F. Nacimiento:</strong> ${m.fecha_nacimiento}</p>
+                                    <p><strong>Propietario:</strong> ${m.propietario_nombre}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // Actualizar dropdown de reserva y filtro
+                const bSelect = document.getElementById('booking-mascota');
+                const bFilter = document.getElementById('filter-mascota');
+
+                bSelect.innerHTML = `<option value="">Seleccione una mascota</option>` + pets.map(m => `
+                    <option value="${m.id}">${m.nombre} (${m.especie} - ${m.propietario_nombre})</option>
+                `).join('');
+
+                bFilter.innerHTML = `<option value="">Todas</option>` + pets.map(m => `
+                    <option value="${m.id}">${m.nombre}</option>
+                `).join('');
+
+            } catch (err) {
+                console.error("Error al cargar mascotas", err);
+            }
+        }
+
+        // 5. Guardar Mascota
+        async function savePet(e) {
+            e.preventDefault();
+            const data = {
+                nombre: document.getElementById('pet-nombre').value,
+                especie: document.getElementById('pet-especie').value,
+                raza_id: document.getElementById('pet-raza').value,
+                fecha_nacimiento: document.getElementById('pet-nacimiento').value,
+                sexo: document.getElementById('pet-sexo').value,
+                peso: document.getElementById('pet-peso').value,
+                propietario_id: document.getElementById('pet-propietario').value,
+                foto_url: document.getElementById('pet-foto').value
+            };
+
+            try {
+                const res = await fetch('/api/pets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    alert('Mascota registrada exitosamente.');
+                    document.getElementById('form-mascota').reset();
+                    document.getElementById('pet-raza').disabled = true;
+                    loadPets();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (err) {
+                alert('Error de conexión.');
+            }
+        }
+
+        // 6. Cargar Servicios
+        async function loadServices() {
+            try {
+                const res = await fetch('/api/services');
+                const services = await res.json();
+
+                const bSelect = document.getElementById('booking-servicio');
+                const bFilter = document.getElementById('filter-servicio');
+
+                bSelect.innerHTML = `<option value="">Seleccione un servicio</option>` + services.map(s => `
+                    <option value="${s.id}">${s.nombre}</option>
+                `).join('');
+
+                bFilter.innerHTML = `<option value="">Todos</option>` + services.map(s => `
+                    <option value="${s.id}">${s.nombre}</option>
+                `).join('');
+
+            } catch (err) {
+                console.error("Error al cargar servicios", err);
+            }
+        }
+
+        // 7. Cargar Reservas con Filtros
+        async function loadBookings() {
+            const mascota_id = document.getElementById('filter-mascota').value;
+            const propietario_id = document.getElementById('filter-propietario').value;
+            const servicio_id = document.getElementById('filter-servicio').value;
+            const fecha = document.getElementById('filter-fecha').value;
+            const estado = document.getElementById('filter-estado').value;
+
+            // Construir params URL
+            const params = new URLSearchParams();
+            if (mascota_id) params.append('mascota_id', mascota_id);
+            if (propietario_id) params.append('propietario_id', propietario_id);
+            if (servicio_id) params.append('servicio_id', servicio_id);
+            if (fecha) params.append('fecha', fecha);
+            if (estado) params.append('estado', estado);
+
+            try {
+                const res = await fetch(`/api/bookings?${params.toString()}`);
+                const bookings = await res.json();
+
+                const list = document.getElementById('bookings-list');
+                if (bookings.length === 0) {
+                    list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-calendar-xmark fa-2x"></i><p>No se encontraron reservas.</p></div>`;
+                } else {
+                    list.innerHTML = bookings.map(b => `
+                        <div class="booking-card">
+                            <div class="card-info">
+                                <h3>${b.servicio_nombre}</h3>
+                                <p><strong>Mascota:</strong> ${b.mascota_nombre} (${b.mascota_especie})</p>
+                                <p><strong>Propietario:</strong> ${b.propietario_nombre}</p>
+                                <p><i class="fa-solid fa-clock"></i> ${b.fecha_atencion} a las ${b.hora_atencion}</p>
+                                ${b.observaciones ? `<p><strong>Obs:</strong> <em>${b.observaciones}</em></p>` : ''}
+                            </div>
+                            <div>
+                                <span class="badge badge-${b.estado.toLowerCase()}">${b.estado}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error("Error al cargar reservas", err);
+            }
+        }
+
+        // 8. Guardar Reserva
+        async function saveBooking(e) {
+            e.preventDefault();
+            const data = {
+                mascota_id: document.getElementById('booking-mascota').value,
+                servicio_id: document.getElementById('booking-servicio').value,
+                fecha_atencion: document.getElementById('booking-fecha').value,
+                hora_atencion: document.getElementById('booking-hora').value,
+                observaciones: document.getElementById('booking-observaciones').value,
+                estado: document.getElementById('booking-estado').value
+            };
+
+            try {
+                const res = await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    alert('Reserva guardada exitosamente.');
+                    document.getElementById('form-reserva').reset();
+                    // Restablecer fecha predeterminada
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById('booking-fecha').value = today;
+                    loadBookings();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (err) {
+                alert('Error de conexión.');
+            }
+        }
+    </script>
+</body>
+</html>

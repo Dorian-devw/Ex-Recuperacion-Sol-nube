@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: petcare_db_container
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-petcare_db}
+      MYSQL_USER: ${DB_USER:-petcare_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-petcare_password}
+      MYSQL_ROOT_PASSWORD: petcare_root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - petcare_network
+
+  web:
+    build: .
+    container_name: petcare_web_container
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=${DB_USER:-petcare_user}
+      - DB_PASSWORD=${DB_PASSWORD:-petcare_password}
+      - DB_NAME=${DB_NAME:-petcare_db}
+      - BREEDS_API_URL=https://dog.ceo/api/breeds/list/all
+    depends_on:
+      - db
+    networks:
+      - petcare_network
+
+volumes:
+  mysql_data:
+
+networks:
+  petcare_network:
+    driver: bridge
