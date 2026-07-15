@@ -10,26 +10,38 @@ La aplicación sigue una arquitectura clásica de 3 capas para mantener el códi
 
 ```mermaid
 graph TD
-    subgraph Capa_Presentacion [Capa de Presentación (Frontend)]
-        UI[Navegador / HTML + CSS + JS]
+    %% Definición de Estilos
+    classDef frontend fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef backend fill:#efebe9,stroke:#5d4037,stroke-width:2px;
+    classDef datos fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef externa fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 5 5;
+
+    subgraph Capa_Presentacion [Capa de Presentación / Frontend]
+        UI[Navegador Web <br> HTML + CSS + JS]:::frontend
     end
     
-    subgraph Capa_Logica [Capa de Lógica de Negocio (Backend)]
-        API[Controlador Flask - app.py]
-        Val[Validaciones & Lógica - business.py]
-        DogAPI[Dog API externa - dog.ceo]
-    end
-    
-    subgraph Capa_Datos [Capa de Acceso a Datos]
-        DB_Helper[Manejador SQL - database.py]
-        MySQL[(Base de Datos MySQL)]
+    subgraph Capa_Logica [Capa de Lógica de Negocio / Backend]
+        API[Controlador Flask <br> app.py]:::backend
+        Val[Validaciones & Lógica <br> business.py]:::backend
     end
 
-    UI <-->|Fetch API / JSON| API
-    API <--> Val
-    Val <--> DB_Helper
-    Val -.->|Consulta Razas| DogAPI
+    subgraph Capa_Datos [Capa de Acceso a Datos]
+        DB_Helper[Manejador SQL <br> database.py]:::datos
+        MySQL[(Base de Datos <br> MySQL)]:::datos
+    end
+
+    subgraph Servicios_Externos [Servicios Externos]
+        DogAPI[Dog API <br> dog.ceo]:::externa
+    end
+
+    %% Flujos de Conexión Mejorados
+    UI <-->|Peticiones HTTP / JSON| API
+    API <-->|Orquesta Datos| Val
+    Val <-->|Acceso a Datos| DB_Helper
     DB_Helper <-->|PyMySQL Connection Pool| MySQL
+    
+    %% Integración con API Externa
+    Val -.->|Consumo de API Rest| DogAPI
 ```
 
 ---
